@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sem-Banha Smokehouse & Brasa Brasileira • Mesa 14 (Versão PC / Desktop)</title>
+  <title>Sem-Banha Smokehouse & Brasa Brasileira • Sistema de Mesa (PC/Desktop)</title>
+  <meta name="description" content="Sistema digital de mesa para o restaurante Sem-Banha Smokehouse & Brasa Brasileira. Cardápio interativo, comanda digital, estúdio de fotos social e passaporte de fidelidade Pitmaster.">
+  <meta name="author" content="Sem-Banha Smokehouse">
+  <meta name="theme-color" content="#ff6a00">
+  <meta property="og:title" content="Sem-Banha Smokehouse • Sistema de Mesa Digital">
+  <meta property="og:description" content="Cardápio interativo, comanda digital, câmera social e passaporte Pitmaster para a Mesa 14.">
+  <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
@@ -2137,9 +2143,243 @@
       .passport-layout { grid-template-columns: 1fr; }
       .mural-grid { grid-template-columns: repeat(2, 1fr); }
     }
+
+    /* ============================================================
+       SPLASH SCREEN
+       ============================================================ */
+    #splashScreen {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #0a0a0a;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    #splashScreen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .splash-logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #ff6a00, #ff0055);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      box-shadow: 0 0 50px rgba(255, 106, 0, 0.6);
+      animation: splashPulse 1.5s infinite;
+    }
+
+    @keyframes splashPulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(255,106,0,0.6); transform: scale(1); }
+      50% { box-shadow: 0 0 60px rgba(255,106,0,0.9); transform: scale(1.04); }
+    }
+
+    .splash-title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-align: center;
+    }
+
+    .splash-title span {
+      color: var(--primary);
+    }
+
+    .splash-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    .splash-progress-bar {
+      width: 220px;
+      height: 3px;
+      background: #222222;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .splash-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6a00, #ffb703);
+      border-radius: 10px;
+      animation: splashLoad 1.8s ease forwards;
+    }
+
+    @keyframes splashLoad {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+
+    /* ============================================================
+       CAMERA PERMISSION UI
+       ============================================================ */
+    .camera-permission-box {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(10, 10, 10, 0.96);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 20;
+      border-radius: var(--radius-md);
+      padding: 30px;
+      text-align: center;
+    }
+
+    .camera-permission-box.hidden {
+      display: none;
+    }
+
+    .camera-permission-icon {
+      font-size: 48px;
+      animation: camIconPulse 2s infinite;
+    }
+
+    @keyframes camIconPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .camera-permission-box h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .camera-permission-box p {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.5;
+      max-width: 280px;
+    }
+
+    .btn-grant-camera {
+      background: var(--primary);
+      border: none;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 12px 28px;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px var(--primary-glow);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-grant-camera:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(255, 106, 0, 0.5);
+    }
+
+    .camera-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1a1a1a;
+      border: 1px solid #2d2d2d;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .camera-status-badge.live {
+      border-color: #1a5749;
+      background: #0a1f1b;
+      color: var(--green);
+    }
+
+    .camera-status-badge .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #555;
+    }
+
+    .camera-status-badge.live .status-dot {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulseGreen 1.5s infinite;
+    }
+
+    /* Footer presentation bar */
+    .app-footer {
+      background: rgba(10, 10, 10, 0.95);
+      border-top: 1px solid #1e1e1e;
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-brand {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .footer-brand strong {
+      color: var(--primary);
+    }
+
+    .footer-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .footer-badge .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
   </style>
 </head>
 <body>
+
+  <!-- ============================================================
+       SPLASH SCREEN — Loading Experience
+       ============================================================ -->
+  <div id="splashScreen">
+    <div class="splash-logo">🔥</div>
+    <div style="text-align:center;">
+      <div class="splash-title">Sem-Banha <span>Smokehouse</span></div>
+      <div class="splash-title" style="font-size:16px; color:var(--text-sub); font-weight:600; margin-top:4px;">& Brasa Brasileira</div>
+    </div>
+    <div class="splash-subtitle">Mesa 14 • Salão Principal</div>
+    <div class="splash-progress-bar">
+      <div class="splash-progress-fill"></div>
+    </div>
+  </div>
 
   <!-- ============================================================
        TOP NAVIGATION BAR (DESKTOP / MACBOOK AIR)
@@ -2615,8 +2855,28 @@
             <p>Registre a vitória da galera na churrascada! Tire uma foto com a moldura e carimbos temáticos do Sem-Banha.</p>
           </div>
 
+          <!-- Camera Status Badge -->
+          <div class="camera-status-badge" id="cameraStatusBadge">
+            <div class="status-dot"></div>
+            <span id="cameraStatusText">Câmera inativa</span>
+          </div>
+
           <!-- Live Viewfinder Box -->
           <div class="viewfinder-wrapper" id="viewfinderWrapper">
+            <!-- Camera Permission Request UI -->
+            <div class="camera-permission-box" id="cameraPermissionBox">
+              <div class="camera-permission-icon">📸</div>
+              <h3>Estúdio Social da Mesa</h3>
+              <p>Para tirar a foto oficial da galera e carimbar o Selo #08, precisamos acessar a câmera do seu computador.</p>
+              <button class="btn-grant-camera" id="btnGrantCamera" onclick="requestCameraPermission()">
+                <span>📷</span>
+                <span>Ativar Câmera ao Vivo</span>
+              </button>
+              <button style="background:transparent; border:none; color:var(--text-muted); font-family:inherit; font-size:12px; cursor:pointer; text-decoration:underline;" onclick="useFallbackPhoto()">
+                Usar foto de demonstração
+              </button>
+            </div>
+
             <!-- Live WebCam Feed -->
             <video id="webcamVideo" autoplay playsinline muted></video>
 
@@ -2660,7 +2920,7 @@
 
           <!-- Viewfinder Action Bar -->
           <div class="viewfinder-controls">
-            <button class="btn-circle-control" title="Alternar Câmera / Modo Foto" onclick="toggleCameraSource()">
+            <button class="btn-circle-control" title="Alternar Câmera / Modo Foto" onclick="toggleCameraSource()" id="btnToggleCam">
               🔄
             </button>
             <button class="btn-circle-control" title="Timer 3 segundos" id="btnTimer" onclick="toggleTimer()">
@@ -2966,6 +3226,20 @@
     </section>
 
   </main>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <div class="footer-brand">
+      <strong>🔥 Sem-Banha Smokehouse</strong> & Brasa Brasileira • Sistema Digital de Mesa
+    </div>
+    <div class="footer-badge">
+      <div class="dot"></div>
+      <span>Sistema Online • Mesa 14 • Salão Principal</span>
+    </div>
+    <div class="footer-brand" style="text-align:right;">
+      Desenvolvido para apresentação acadêmica • 2026
+    </div>
+  </footer>
 
   <!-- ============================================================
        MODAL PIX
@@ -3418,9 +3692,34 @@
     // ============================================================
     // WEBCAM & CAMERA STUDIO ENGINE
     // ============================================================
+    function updateCameraStatusBadge(status) {
+      const badge = document.getElementById('cameraStatusBadge');
+      const text = document.getElementById('cameraStatusText');
+      if (status === 'live') {
+        badge.className = 'camera-status-badge live';
+        text.innerText = '🔴 AO VIVO';
+      } else if (status === 'fallback') {
+        badge.className = 'camera-status-badge';
+        text.innerText = '📷 Foto Demonstrativa';
+      } else {
+        badge.className = 'camera-status-badge';
+        text.innerText = 'Câmera inativa';
+      }
+    }
+
+    async function requestCameraPermission() {
+      const btn = document.getElementById('btnGrantCamera');
+      btn.innerHTML = '<span>⏳</span><span>Aguardando permissão...</span>';
+      btn.disabled = true;
+      await initWebcam();
+      btn.innerHTML = '<span>📷</span><span>Ativar Câmera ao Vivo</span>';
+      btn.disabled = false;
+    }
+
     async function initWebcam() {
       const video = document.getElementById('webcamVideo');
       const fallback = document.getElementById('fallbackPhoto');
+      const permBox = document.getElementById('cameraPermissionBox');
 
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         try {
@@ -3429,13 +3728,24 @@
               video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
               audio: false
             });
-            video.srcObject = webcamStream;
-            video.style.display = 'block';
-            fallback.style.display = 'none';
-            isUsingFallbackPhoto = false;
           }
+          video.srcObject = webcamStream;
+          video.style.display = 'block';
+          fallback.style.display = 'none';
+          if (permBox) permBox.classList.add('hidden');
+          isUsingFallbackPhoto = false;
+          updateCameraStatusBadge('live');
+          showToast('📸 Câmera ao vivo ativada! Agora tire a foto da galera.');
         } catch (err) {
-          console.warn('Webcam permission not granted or device has no camera. Using high-res fallback BBQ photo.', err);
+          console.warn('Webcam permission not granted or device has no camera.', err);
+          if (permBox) {
+            const permIcon = permBox.querySelector('.camera-permission-icon');
+            if (permIcon) permIcon.textContent = '🚫';
+            const permH3 = permBox.querySelector('h3');
+            if (permH3) permH3.textContent = 'Permissão Negada';
+            const permP = permBox.querySelector('p');
+            if (permP) permP.textContent = 'O acesso à câmera foi bloqueado. Clique no ícone de câmera na barra de endereço do navegador e permita o acesso, depois tente novamente.';
+          }
           useFallbackPhoto();
         }
       } else {
@@ -3446,17 +3756,54 @@
     function useFallbackPhoto() {
       const video = document.getElementById('webcamVideo');
       const fallback = document.getElementById('fallbackPhoto');
+      const permBox = document.getElementById('cameraPermissionBox');
       video.style.display = 'none';
       fallback.style.display = 'block';
+      if (permBox) permBox.classList.add('hidden');
       isUsingFallbackPhoto = true;
+      updateCameraStatusBadge('fallback');
     }
 
     function toggleCameraSource() {
       if (isUsingFallbackPhoto) {
-        initWebcam();
+        // Show permission box again if no stream
+        if (!webcamStream) {
+          const permBox = document.getElementById('cameraPermissionBox');
+          const permIcon = permBox ? permBox.querySelector('.camera-permission-icon') : null;
+          const permH3 = permBox ? permBox.querySelector('h3') : null;
+          const permP = permBox ? permBox.querySelector('p') : null;
+          if (permBox) permBox.classList.remove('hidden');
+          if (permIcon) permIcon.textContent = '📸';
+          if (permH3) permH3.textContent = 'Estúdio Social da Mesa';
+          if (permP) permP.textContent = 'Para tirar a foto oficial da galera e carimbar o Selo #08, precisamos acessar a câmera do seu computador.';
+          const video = document.getElementById('webcamVideo');
+          const fallback = document.getElementById('fallbackPhoto');
+          video.style.display = 'none';
+          fallback.style.display = 'none';
+          updateCameraStatusBadge('inactive');
+        } else {
+          initWebcam();
+        }
       } else {
-        useFallbackPhoto();
-        showToast('📷 Alternado para foto demonstrativa da churrascada.');
+        if (webcamStream) {
+          webcamStream.getTracks().forEach(t => t.stop());
+          webcamStream = null;
+        }
+        const permBox = document.getElementById('cameraPermissionBox');
+        const permIcon = permBox ? permBox.querySelector('.camera-permission-icon') : null;
+        const permH3 = permBox ? permBox.querySelector('h3') : null;
+        const permP = permBox ? permBox.querySelector('p') : null;
+        const video = document.getElementById('webcamVideo');
+        const fallback = document.getElementById('fallbackPhoto');
+        if (permBox) permBox.classList.remove('hidden');
+        if (permIcon) permIcon.textContent = '📸';
+        if (permH3) permH3.textContent = 'Estúdio Social da Mesa';
+        if (permP) permP.textContent = 'Para tirar a foto oficial da galera e carimbar o Selo #08, precisamos acessar a câmera do seu computador.';
+        video.style.display = 'none';
+        fallback.style.display = 'none';
+        isUsingFallbackPhoto = false;
+        updateCameraStatusBadge('inactive');
+        showToast('📷 Câmera desativada. Clique em Ativar para ligar novamente.');
       }
     }
 
@@ -3605,7 +3952,15 @@
       renderFeaturedDishes();
       renderFullMenu();
       updateComandaUI();
+
+      // Splash screen auto-dismiss
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        if (splash) splash.classList.add('hidden');
+      }, 2200);
     });
+
+    // Note: webcam stream is kept alive when navigating between views for performance
   </script>
 </body>
 </html>
