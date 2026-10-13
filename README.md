@@ -72,10 +72,21 @@ Você tem duas opções simples:
   - 🍻 *O Brinde Perfeito*
   - 🔥 *Fogo & Brasa Pura*
   - 🍖 *Costela Master 12h*
-- **Controles de Estúdio:** Disparador com efeito visual de flash, temporizador de 3s e botão refazer.
+- **Controles de Estúdio:**
+  - **Temporizador Interativo (3s):** Contagem regressiva visual dinâmica na tela (`3... 2... 1...`) com bipe sonoro e disparo automático.
+  - **Efeito Flash:** Flash estroboscópico de estúdio fotográfico.
+  - **Composição Gráfica em Tempo Real no Canvas:** A foto final gerada mescla o frame escolhido, o carimbo oficial selecionado, o logotipo `🔥 SEM-BANHA SMOKEHOUSE`, data e horário, tornando o arquivo baixado um cartão souvenir oficial pronto para impressão ou redes sociais!
+- **Feedback Sensorial & Áudio Web API:**
+  - Cliques de obturador mecânico de câmera ao fotografar.
+  - Notificação sonora sutil ao adicionar itens ao carrinho.
+  - Sino de atendimento ao chamar o garçom.
+  - Fanfarra arpejada de vitória ao carimbar o 8º selo lendário.
+  - Botão de controle de áudio (`🔊 Áudio` / `🔇 Mudo`) no cabeçalho.
+- **Atmosfera Visual Imersiva:**
+  - Partículas sutis de brasas e faíscas incandescentes flutuando em segundo plano (`HTML5 Canvas`), evocando o ambiente autêntico de uma parrilla e defumadora nobre.
 - **Ações Finais:**
-  - `⭐ Salvar Foto & Carimbar Selo #08`: Valida o último selo e abre o passaporte completo!
-  - `⬇️ Salvar em Alta Definição (HD)`: Faz o download da foto renderizada com moldura para o seu computador.
+  - `⭐ Salvar Foto & Carimbar Selo #08`: Valida o último selo com fanfarra comemorativa e abre o passaporte completo!
+  - `⬇️ Salvar em Alta Definição (HD)`: Faz o download do cartão souvenir renderizado em alta resolução para o computador.
   - `🖨️ Imprimir Foto Polaroid no Caixa`.
   - `📲 Postar no Instagram Stories`.
 - **Mural das 8 Mesas Conquistadas:** Galeria com as comitivas recentes que venceram o desafio.
