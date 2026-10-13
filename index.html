@@ -2362,9 +2362,95 @@
       background: var(--green);
       box-shadow: 0 0 6px var(--green);
     }
+
+    /* Floating embers background */
+    #emberCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Sound toggle button in header */
+    .btn-sound-toggle {
+      background: #1c1c1c;
+      border: 1px solid #333333;
+      color: var(--text-sub);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-sound-toggle:hover {
+      background: #282828;
+      border-color: #555555;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .btn-sound-toggle.muted {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    /* Camera Countdown Overlay */
+    .camera-countdown-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      z-index: 45;
+      border-radius: var(--radius-md);
+    }
+
+    .camera-countdown-overlay.active {
+      display: flex;
+    }
+
+    .countdown-circle {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 4px solid var(--primary);
+      box-shadow: 0 0 35px var(--primary-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(20, 20, 20, 0.85);
+      animation: pulseCircle 1s infinite alternate;
+    }
+
+    @keyframes pulseCircle {
+      from { transform: scale(0.95); box-shadow: 0 0 20px rgba(255, 106, 0, 0.4); }
+      to { transform: scale(1.05); box-shadow: 0 0 45px rgba(255, 106, 0, 0.8); }
+    }
+
+    .countdown-number {
+      font-size: 68px;
+      font-weight: 900;
+      font-family: 'Oswald', sans-serif;
+      color: #ffb703;
+      text-shadow: 0 0 20px rgba(255, 183, 3, 0.8);
+    }
   </style>
 </head>
 <body>
+
+  <!-- Floating Parrilla Embers Particle Canvas -->
+  <canvas id="emberCanvas"></canvas>
 
   <!-- ============================================================
        SPLASH SCREEN — Loading Experience
@@ -2426,6 +2512,11 @@
           <div class="comanda-summary-value" id="headerTotalValue">R$ 350,80</div>
         </div>
       </div>
+
+      <button class="btn-sound-toggle" id="btnSoundToggle" onclick="toggleSound()" title="Ativar/Desativar Efeitos Sonoros">
+        <span id="soundIcon">🔊</span>
+        <span id="soundText">Áudio</span>
+      </button>
 
       <button class="btn-garcom" id="btnCallWaiter" onclick="toggleCallWaiter()">
         <span>🔔</span>
@@ -2888,6 +2979,13 @@
 
             <!-- Camera Flash Element -->
             <div class="camera-flash" id="cameraFlash"></div>
+
+            <!-- Camera Countdown Overlay -->
+            <div class="camera-countdown-overlay" id="cameraCountdown">
+              <div class="countdown-circle">
+                <div class="countdown-number" id="countdownNum">3</div>
+              </div>
+            </div>
 
             <!-- Moldura / Frame Overlay -->
             <div class="frame-overlay frame-parrilla" id="frameOverlay">
@@ -3418,6 +3516,146 @@
     let webcamStream = null;
     let capturedPhotoData = null;
     let isUsingFallbackPhoto = false;
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    // Web Audio API Sound Effects (no external dependencies, instant feedback)
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('btnSoundToggle');
+      const icon = document.getElementById('soundIcon');
+      const text = document.getElementById('soundText');
+      if (soundEnabled) {
+        btn.classList.remove('muted');
+        icon.innerText = '🔊';
+        text.innerText = 'Áudio';
+        playSound('chime');
+        showToast('🔊 Efeitos sonoros ativados.');
+      } else {
+        btn.classList.add('muted');
+        icon.innerText = '🔇';
+        text.innerText = 'Mudo';
+        showToast('🔇 Efeitos sonoros desativados.');
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'shutter') {
+          // Camera shutter click
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, t);
+          osc.frequency.exponentialRampToValueAtTime(120, t + 0.08);
+          gain.gain.setValueAtTime(0.4, t);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
+          osc.start(t);
+          osc.stop(t + 0.09);
+        } else if (type === 'chime') {
+          // Soft cart chime
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(587.33, t);
+          osc.frequency.setValueAtTime(880, t + 0.08);
+          gain.gain.setValueAtTime(0.2, t);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + 0.28);
+          osc.start(t);
+          osc.stop(t + 0.3);
+        } else if (type === 'bell') {
+          // Waiter service bell
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1200, t);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+          osc.start(t);
+          osc.stop(t + 0.6);
+        } else if (type === 'fanfare') {
+          // Victory arpeggio (C - E - G - High C)
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, t + idx * 0.09);
+            g.gain.setValueAtTime(0.25, t + idx * 0.09);
+            g.gain.exponentialRampToValueAtTime(0.01, t + idx * 0.09 + 0.3);
+            o.start(t + idx * 0.09);
+            o.stop(t + idx * 0.09 + 0.35);
+          });
+        }
+      } catch (e) {}
+    }
+
+    // Floating Parrilla Embers Particle System
+    function initEmberParticles() {
+      const canvas = document.getElementById('emberCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const particles = [];
+      const particleCount = 28;
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: height + Math.random() * 200,
+          radius: Math.random() * 2.2 + 0.8,
+          speedY: Math.random() * 0.8 + 0.35,
+          speedX: (Math.random() - 0.5) * 0.6,
+          opacity: Math.random() * 0.7 + 0.3,
+          fadeSpeed: Math.random() * 0.003 + 0.001,
+          color: Math.random() > 0.4 ? 'rgba(255, 106, 0,' : 'rgba(255, 183, 3,'
+        });
+      }
+
+      function renderEmbers() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+          p.y -= p.speedY;
+          p.x += p.speedX;
+          p.opacity -= p.fadeSpeed;
+
+          if (p.y < -10 || p.opacity <= 0) {
+            p.x = Math.random() * width;
+            p.y = height + 10;
+            p.opacity = Math.random() * 0.7 + 0.3;
+            p.speedY = Math.random() * 0.8 + 0.35;
+          }
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + p.opacity + ')';
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = '#ff6a00';
+          ctx.fill();
+        });
+        requestAnimationFrame(renderEmbers);
+      }
+      renderEmbers();
+    }
 
     // Format BRL
     function formatBRL(val) {
@@ -3590,6 +3828,7 @@
         });
       }
       updateComandaUI();
+      playSound('chime');
       showToast(`🥩 ${dish.name} adicionado ao pedido da Mesa 14!`);
     }
 
@@ -3677,6 +3916,7 @@
       if (isWaiterCalled) {
         btn.classList.add('active-call');
         text.innerText = 'Garçom a Caminho!';
+        playSound('bell');
         showToast('🔔 Garçom Rodrigo notificado! Ele está se dirigindo à Mesa 14.');
       } else {
         btn.classList.remove('active-call');
@@ -3807,13 +4047,14 @@
       }
     }
 
-    // Trigger Photo Capture (with flash animation)
+    // Trigger Photo Capture (with flash animation & Polaroid souvenir composite)
     function triggerPhotoCapture() {
+      playSound('shutter');
       const flash = document.getElementById('cameraFlash');
       flash.classList.add('flash-active');
       setTimeout(() => {
         flash.classList.remove('flash-active');
-      }, 150);
+      }, 160);
 
       const video = document.getElementById('webcamVideo');
       const fallback = document.getElementById('fallbackPhoto');
@@ -3821,24 +4062,83 @@
       const ctx = canvas.getContext('2d');
 
       const wrapper = document.getElementById('viewfinderWrapper');
-      canvas.width = wrapper.clientWidth;
-      canvas.height = wrapper.clientHeight;
+      const w = wrapper.clientWidth || 800;
+      const h = wrapper.clientHeight || 500;
+      canvas.width = w;
+      canvas.height = h;
 
-      if (!isUsingFallbackPhoto && video.videoWidth) {
+      if (!isUsingFallbackPhoto && video && video.videoWidth) {
         // Draw flipped mirror webcam video
         ctx.save();
-        ctx.translate(canvas.width, 0);
+        ctx.translate(w, 0);
         ctx.scale(-1, 1);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, w, h);
         ctx.restore();
       } else {
         // Draw fallback image
-        ctx.drawImage(fallback, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(fallback, 0, 0, w, h);
       }
+
+      // Draw souvenir frame border & badges onto canvas
+      ctx.save();
+      let frameColor = '#ff6a00';
+      if (currentFrame === 'smoke') frameColor = '#c44d00';
+      if (currentFrame === 'gold') frameColor = '#ffb703';
+      if (currentFrame === 'chopp') frameColor = '#2ec4b6';
+
+      ctx.strokeStyle = frameColor;
+      ctx.lineWidth = 14;
+      ctx.strokeRect(7, 7, w - 14, h - 14);
+
+      // Top brand strip
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.78)';
+      ctx.fillRect(18, 18, w - 36, 42);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('🔥 SEM-BANHA SMOKEHOUSE', 32, 45);
+      ctx.fillStyle = '#ffb703';
+      ctx.textAlign = 'right';
+      ctx.font = 'bold 12px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('MESA 14 • NOITE ÉPICA', w - 32, 45);
+
+      // Selected sticker badge
+      const stickerText = '⭐ ' + (currentSticker || 'Comitiva da Brasa');
+      ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
+      const textWidth = ctx.measureText(stickerText).width;
+      const stickerX = (w - textWidth - 36) / 2;
+      const stickerY = h - 90;
+
+      ctx.fillStyle = 'rgba(255, 106, 0, 0.95)';
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(stickerX, stickerY, textWidth + 36, 34, 17);
+      } else {
+        ctx.rect(stickerX, stickerY, textWidth + 36, 34);
+      }
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.fillText(stickerText, w / 2, stickerY + 22);
+
+      // Bottom info strip
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.78)';
+      ctx.fillRect(18, h - 44, w - 36, 30);
+      ctx.fillStyle = '#b5b5b5';
+      ctx.font = '11px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'left';
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('pt-BR');
+      ctx.fillText('Brasa & Defumação • ' + dateStr, 32, h - 25);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ffb703';
+      ctx.fillText('#SemBanhaExperience • Selo #08', w - 32, h - 25);
+      ctx.restore();
 
       canvas.style.display = 'block';
       capturedPhotoData = canvas.toDataURL('image/jpeg', 0.95);
-      showToast('📸 Foto capturada com sucesso! Aplique os carimbos e salve.');
+      showToast('📸 Foto capturada! Moldura oficial e carimbo gravados.');
     }
 
     function resetPhotoCapture() {
@@ -3855,17 +4155,28 @@
     }
 
     function toggleTimer() {
-      const btn = document.getElementById('btnTimer');
-      if (timerCountdown === 0) {
-        timerCountdown = 3;
-        btn.innerText = '3s';
-        showToast('⏱️ Timer ativado para 3 segundos!');
-        setTimeout(() => {
+      const countdownEl = document.getElementById('cameraCountdown');
+      const countNum = document.getElementById('countdownNum');
+      if (timerCountdown > 0) return;
+
+      timerCountdown = 3;
+      countdownEl.classList.add('active');
+      countNum.innerText = '3';
+      playSound('shutter');
+      showToast('⏱️ Sorria! Foto em 3 segundos...');
+
+      const interval = setInterval(() => {
+        timerCountdown--;
+        if (timerCountdown > 0) {
+          countNum.innerText = timerCountdown;
+          playSound('shutter');
+        } else {
+          clearInterval(interval);
+          countdownEl.classList.remove('active');
           triggerPhotoCapture();
           timerCountdown = 0;
-          btn.innerText = '⏱️';
-        }, 3000);
-      }
+        }
+      }, 1000);
     }
 
     // Frame selection
@@ -3911,6 +4222,7 @@
         document.getElementById('passportDisplayImg').src = capturedPhotoData;
       }
 
+      playSound('fanfare');
       showToast('🎉 SELO #08 CARIMBADO COM SUCESSO! Passaporte Pitmaster Completo!');
       setTimeout(() => {
         switchView('passport');
@@ -3952,6 +4264,7 @@
       renderFeaturedDishes();
       renderFullMenu();
       updateComandaUI();
+      initEmberParticles();
 
       // Splash screen auto-dismiss
       setTimeout(() => {
